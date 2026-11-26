@@ -1,19 +1,69 @@
-# React + Vite
+# Asset QR Management — React SPA
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vite + React 18 app that uses the PHP API in `../api/`.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Login / logout (session + CSRF)
+- Add asset & generate QR (registry)
+- Search, dashboard, asset management
+- Item / office / location masters
+- IT Desktops, Laptops, Monitors (CRUD, stats, CSV, QR)
+- User management
 
-## React Compiler
+## Setup
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+1. **PHP API**  
+   - Copy `../api/` to your host (or point Apache/Nginx at it).  
+   - Edit `api/config.php` (DB credentials, `CORS_ORIGINS`, `PUBLIC_BASE_URL`).  
+   - Import SQL dumps as in the main project README.  
+   - Keep original `index.php` public QR viewer for scan links.
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+2. **React**
 
-## Expanding the Oxlint configuration
+```bash
+cd react-app
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+3. **Dev**
+
+- Run PHP on port 8080 (example: `php -S localhost:8080 -t /path/to/project`).
+- Vite proxies `/api` → `http://localhost:8080` (see `vite.config.js`).
+
+```bash
+npm run dev
+```
+
+Open http://localhost:5173
+
+4. **Production build**
+
+```bash
+npm run build
+```
+
+Serve `dist/` under the same domain as the API (or set `VITE_API_BASE` to the absolute API URL and ensure CORS + cookies work).
+
+Optional env:
+
+```env
+VITE_API_BASE=https://yourdomain.com/api/index.php
+```
+
+## Auth flow
+
+1. `POST ?action=session` → CSRF token + optional `user_id`
+2. All other calls send `X-CSRF-Token` and cookies
+3. On 401, app reloads session / shows login
+
+## Project layout
+
+```
+src/
+  api/client.js       # fetch wrapper
+  context/AuthContext.jsx
+  components/QrPanel.jsx
+  pages/              # one page per menu section
+  utils/helpers.js
+```
