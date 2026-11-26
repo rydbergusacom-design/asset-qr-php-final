@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // change to your PHP server
+        target: 'https://rydberg-group.com/asset-qr-php-api-and-react/api/', // change to your PHP server
         changeOrigin: true,
         secure: false,
       },
